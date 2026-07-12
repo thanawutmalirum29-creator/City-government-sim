@@ -142,7 +142,12 @@ function applyResearchEffects() {
     });
 }
 
+// เก็บ "ระดับ" ของ modal ปัจจุบัน เพื่อให้ปุ่ม "ปิด" รู้ว่าควรย้อนกลับไปหน้าเลือกหมวดหมู่
+// หรือปิด popup ทั้งหมด (root = หน้าเลือกหมวดหมู่, category = หน้ารายการโครงการในหมวด)
+let modalLevel = null;
+
 function openResearchCenter() {
+    modalLevel = "root";
     let html = `<h2>🏛️ ศูนย์วิจัย</h2>
     <p>เลือกหมวดหมู่เพื่อดูโครงการวิจัย:</p>
     <button onclick="showResearchCategory('city')">🏙️ พัฒนาเมือง</button>
@@ -152,6 +157,7 @@ function openResearchCenter() {
     showModal(html); // ฟังก์ชันนี้ไว้แสดง popup
 }
 function showResearchCategory(category) {
+    modalLevel = "category";
     let projects = researchProjects.filter(p => p.category === category && !p.researched);
 
     if (projects.length === 0) {
@@ -167,6 +173,11 @@ function showResearchCategory(category) {
     showModal(html);
 }
 function showModal(content) {
+    // ลบ overlay เก่าทิ้งก่อนเสมอ (ถ้ามีค้างอยู่) ป้องกันปัญหา modal ซ้อนกัน
+    // ที่ทำให้ต้องกด "ปิด" สองครั้งกว่าจะปิดจริง
+    let existingOverlay = document.getElementById("modal-overlay");
+    if (existingOverlay) existingOverlay.remove();
+
     // สร้าง div overlay (ใช้คลาส CSS แทน inline style ขาวล้วน
     // เพื่อให้รองรับธีมมืดด้วย)
     let overlay = document.createElement("div");
@@ -176,13 +187,23 @@ function showModal(content) {
     // สร้างกล่อง modal
     let modal = document.createElement("div");
     modal.className = "modal-box";
-    modal.innerHTML = content + `<br><button onclick="closeModal()">ปิด</button>`;
+    modal.innerHTML = `
+        <div class="modal-body">${content}</div>
+        <div class="modal-footer"><button onclick="closeModal()">ปิด</button></div>
+    `;
 
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 }
 
 function closeModal() {
+    // ถ้าอยู่หน้ารายการโครงการในหมวด (category) ให้ย้อนกลับไปหน้าเลือกหมวดหมู่ (root) ก่อน
+    // ต้องกด "ปิด" อีกครั้งตอนอยู่หน้าเลือกหมวดหมู่ถึงจะปิด popup ทั้งหมดจริง ๆ
+    if (modalLevel === "category") {
+        openResearchCenter();
+        return;
+    }
+    modalLevel = null;
     let overlay = document.getElementById("modal-overlay");
     if (overlay) overlay.remove();
 }

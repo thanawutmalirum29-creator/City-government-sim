@@ -36,10 +36,10 @@ function preprocessDeaths() {
 }
 
 function showDeadCitizens() {
-  const container = document.getElementById("deadDisplay");
+  modalLevel = null; // popup เดี่ยว ไม่ใช่ส่วนหนึ่งของ flow ศูนย์วิจัย ปิดครั้งเดียวจบ
 
   if (!deadCitizens || deadCitizens.length === 0) {
-    container.textContent = "ยังไม่มีผู้เสียชีวิต";
+    showModal(`<h3>☠️ ผู้เสียชีวิต</h3><p>ยังไม่มีผู้เสียชีวิต</p>`);
     return;
   }
 
@@ -47,14 +47,14 @@ function showDeadCitizens() {
     return `☠️ ID: ${c.id} | อายุที่ตาย: ${c.age} | ความรู้: ${c.knowledge}`;
   }).join("\n");
 
-  container.textContent = output;
+  showModal(`<h3>☠️ ผู้เสียชีวิต (${deadCitizens.length} คน)</h3><pre>${output}</pre>`);
 }
 
 function showCitizensData() {
-  const container = document.getElementById("citizenDisplay");
+  modalLevel = null; // popup เดี่ยว ไม่ใช่ส่วนหนึ่งของ flow ศูนย์วิจัย ปิดครั้งเดียวจบ
 
   if (!citizens || citizens.length === 0) {
-    container.textContent = "ยังไม่มีข้อมูลประชาชน";
+    showModal(`<h3>📄 ข้อมูลประชาชน</h3><p>ยังไม่มีข้อมูลประชาชน</p>`);
     return;
   }
 
@@ -62,5 +62,5 @@ function showCitizensData() {
     return `🧍‍♂️ ID: ${c.id} | อายุ: ${c.age} | ความรู้: ${c.knowledge}`;
   }).join("\n");
 
-  container.textContent = output;
+  showModal(`<h3>📄 ข้อมูลประชาชน (${citizens.length} คน)</h3><pre>${output}</pre>`);
 }
