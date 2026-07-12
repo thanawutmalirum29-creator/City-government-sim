@@ -3,8 +3,8 @@
    จำค่าที่เลือกไว้ใน localStorage
    =============================== */
 (function () {
-  const LIGHT = "styleเมือง ธีมขาว.css";
-  const DARK = "styleเมือง ธีมดำ.css";
+  const LIGHT = "style-city-light.css";
+  const DARK = "style-city-dark.css";
   const STORAGE_KEY = "cityTheme";
 
   function applyTheme(theme) {
