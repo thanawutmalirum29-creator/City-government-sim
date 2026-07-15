@@ -18,7 +18,10 @@
   <header class="app-header">
     <h1>
       <span class="app-title"><span class="app-title-icon">🏛️</span> เมืองแห่งความสุข</span>
-      <button id="themeToggleBtn" class="theme-toggle" title="สลับธีมสว่าง/มืด">🌙 โหมดมืด</button>
+      <span class="header-btn-group">
+        <button id="gameGuideBtn" class="theme-toggle guide-reopen-btn" onclick="showGameGuide()" title="เปิดคู่มือเริ่มเกมอีกครั้ง">📖 วิธีเล่น</button>
+        <button id="themeToggleBtn" class="theme-toggle" title="สลับธีมสว่าง/มืด">🌙 โหมดมืด</button>
+      </span>
     </h1>
     <p class="app-subtitle">City Government Sim — บริหารเมือง ดูแลประชาชน สร้างอนาคตร่วมกัน</p>
   </header>
@@ -103,58 +106,106 @@
   <!-- 🔹 นโยบายภาษี: ผู้เล่นปรับอัตราภาษีแต่ละประเภท/ขนาดเองได้ (50%-150% ของมาตรฐาน) -->
   <div class="section" id="taxSection">
     <h3>🧾 นโยบายภาษี</h3>
-    <p class="tax-hint">ปรับอัตราภาษีแต่ละประเภทเป็น % เทียบกับมาตรฐาน — ขึ้นภาษีได้รายได้เพิ่มแต่ความสุขลด ลดภาษีดึงดูดประชาชนแต่รายได้น้อยลง</p>
+    <p class="tax-hint">ปรับอัตราภาษีแต่ละประเภทเป็น % เทียบกับมาตรฐาน — ขึ้นภาษีได้รายได้เพิ่มแต่ความสุขลด ลดภาษีดึงดูดประชาชนแต่รายได้น้อยลง<br>💡 กดปุ่ม － / ＋ เพื่อปรับทีละ 5% ได้แม่นยำกว่าการลากแถบเลื่อน</p>
 
     <div class="tax-grid">
       <div class="tax-group">
         <div class="tax-group-title">🏠 ที่อยู่อาศัย</div>
         <div class="tax-row">
-          <label for="tax_home_small">บ้านเล็ก</label>
-          <input type="range" id="tax_home_small" min="50" max="150" value="100" step="5" oninput="setTax('home','small')">
-          <span class="tax-value" id="taxval_home_small">100%</span>
+          <div class="tax-row-top">
+            <label for="tax_home_small">บ้านเล็ก</label>
+            <span class="tax-value" id="taxval_home_small">100%</span>
+          </div>
+          <div class="tax-slider-line">
+            <button type="button" class="tax-step" onclick="adjustTax('home','small',-5)" aria-label="ลดภาษีบ้านเล็ก 5%">－</button>
+            <input type="range" id="tax_home_small" min="50" max="150" value="100" step="5" oninput="setTax('home','small')">
+            <button type="button" class="tax-step" onclick="adjustTax('home','small',5)" aria-label="เพิ่มภาษีบ้านเล็ก 5%">＋</button>
+          </div>
         </div>
         <div class="tax-row">
-          <label for="tax_home_large">บ้านใหญ่</label>
-          <input type="range" id="tax_home_large" min="50" max="150" value="100" step="5" oninput="setTax('home','large')">
-          <span class="tax-value" id="taxval_home_large">100%</span>
+          <div class="tax-row-top">
+            <label for="tax_home_large">บ้านใหญ่</label>
+            <span class="tax-value" id="taxval_home_large">100%</span>
+          </div>
+          <div class="tax-slider-line">
+            <button type="button" class="tax-step" onclick="adjustTax('home','large',-5)" aria-label="ลดภาษีบ้านใหญ่ 5%">－</button>
+            <input type="range" id="tax_home_large" min="50" max="150" value="100" step="5" oninput="setTax('home','large')">
+            <button type="button" class="tax-step" onclick="adjustTax('home','large',5)" aria-label="เพิ่มภาษีบ้านใหญ่ 5%">＋</button>
+          </div>
         </div>
       </div>
 
       <div class="tax-group">
         <div class="tax-group-title">🛍️ ร้านค้า</div>
         <div class="tax-row">
-          <label for="tax_shop_small">ร้านเล็ก</label>
-          <input type="range" id="tax_shop_small" min="50" max="150" value="100" step="5" oninput="setTax('shop','small')">
-          <span class="tax-value" id="taxval_shop_small">100%</span>
+          <div class="tax-row-top">
+            <label for="tax_shop_small">ร้านเล็ก</label>
+            <span class="tax-value" id="taxval_shop_small">100%</span>
+          </div>
+          <div class="tax-slider-line">
+            <button type="button" class="tax-step" onclick="adjustTax('shop','small',-5)" aria-label="ลดภาษีร้านเล็ก 5%">－</button>
+            <input type="range" id="tax_shop_small" min="50" max="150" value="100" step="5" oninput="setTax('shop','small')">
+            <button type="button" class="tax-step" onclick="adjustTax('shop','small',5)" aria-label="เพิ่มภาษีร้านเล็ก 5%">＋</button>
+          </div>
         </div>
         <div class="tax-row">
-          <label for="tax_shop_medium">ร้านกลาง</label>
-          <input type="range" id="tax_shop_medium" min="50" max="150" value="100" step="5" oninput="setTax('shop','medium')">
-          <span class="tax-value" id="taxval_shop_medium">100%</span>
+          <div class="tax-row-top">
+            <label for="tax_shop_medium">ร้านกลาง</label>
+            <span class="tax-value" id="taxval_shop_medium">100%</span>
+          </div>
+          <div class="tax-slider-line">
+            <button type="button" class="tax-step" onclick="adjustTax('shop','medium',-5)" aria-label="ลดภาษีร้านกลาง 5%">－</button>
+            <input type="range" id="tax_shop_medium" min="50" max="150" value="100" step="5" oninput="setTax('shop','medium')">
+            <button type="button" class="tax-step" onclick="adjustTax('shop','medium',5)" aria-label="เพิ่มภาษีร้านกลาง 5%">＋</button>
+          </div>
         </div>
         <div class="tax-row">
-          <label for="tax_shop_large">ร้านใหญ่</label>
-          <input type="range" id="tax_shop_large" min="50" max="150" value="100" step="5" oninput="setTax('shop','large')">
-          <span class="tax-value" id="taxval_shop_large">100%</span>
+          <div class="tax-row-top">
+            <label for="tax_shop_large">ร้านใหญ่</label>
+            <span class="tax-value" id="taxval_shop_large">100%</span>
+          </div>
+          <div class="tax-slider-line">
+            <button type="button" class="tax-step" onclick="adjustTax('shop','large',-5)" aria-label="ลดภาษีร้านใหญ่ 5%">－</button>
+            <input type="range" id="tax_shop_large" min="50" max="150" value="100" step="5" oninput="setTax('shop','large')">
+            <button type="button" class="tax-step" onclick="adjustTax('shop','large',5)" aria-label="เพิ่มภาษีร้านใหญ่ 5%">＋</button>
+          </div>
         </div>
       </div>
 
       <div class="tax-group">
         <div class="tax-group-title">🏭 โรงงาน</div>
         <div class="tax-row">
-          <label for="tax_factory_small">โรงงานเล็ก</label>
-          <input type="range" id="tax_factory_small" min="50" max="150" value="100" step="5" oninput="setTax('factory','small')">
-          <span class="tax-value" id="taxval_factory_small">100%</span>
+          <div class="tax-row-top">
+            <label for="tax_factory_small">โรงงานเล็ก</label>
+            <span class="tax-value" id="taxval_factory_small">100%</span>
+          </div>
+          <div class="tax-slider-line">
+            <button type="button" class="tax-step" onclick="adjustTax('factory','small',-5)" aria-label="ลดภาษีโรงงานเล็ก 5%">－</button>
+            <input type="range" id="tax_factory_small" min="50" max="150" value="100" step="5" oninput="setTax('factory','small')">
+            <button type="button" class="tax-step" onclick="adjustTax('factory','small',5)" aria-label="เพิ่มภาษีโรงงานเล็ก 5%">＋</button>
+          </div>
         </div>
         <div class="tax-row">
-          <label for="tax_factory_medium">โรงงานกลาง</label>
-          <input type="range" id="tax_factory_medium" min="50" max="150" value="100" step="5" oninput="setTax('factory','medium')">
-          <span class="tax-value" id="taxval_factory_medium">100%</span>
+          <div class="tax-row-top">
+            <label for="tax_factory_medium">โรงงานกลาง</label>
+            <span class="tax-value" id="taxval_factory_medium">100%</span>
+          </div>
+          <div class="tax-slider-line">
+            <button type="button" class="tax-step" onclick="adjustTax('factory','medium',-5)" aria-label="ลดภาษีโรงงานกลาง 5%">－</button>
+            <input type="range" id="tax_factory_medium" min="50" max="150" value="100" step="5" oninput="setTax('factory','medium')">
+            <button type="button" class="tax-step" onclick="adjustTax('factory','medium',5)" aria-label="เพิ่มภาษีโรงงานกลาง 5%">＋</button>
+          </div>
         </div>
         <div class="tax-row">
-          <label for="tax_factory_large">โรงงานใหญ่</label>
-          <input type="range" id="tax_factory_large" min="50" max="150" value="100" step="5" oninput="setTax('factory','large')">
-          <span class="tax-value" id="taxval_factory_large">100%</span>
+          <div class="tax-row-top">
+            <label for="tax_factory_large">โรงงานใหญ่</label>
+            <span class="tax-value" id="taxval_factory_large">100%</span>
+          </div>
+          <div class="tax-slider-line">
+            <button type="button" class="tax-step" onclick="adjustTax('factory','large',-5)" aria-label="ลดภาษีโรงงานใหญ่ 5%">－</button>
+            <input type="range" id="tax_factory_large" min="50" max="150" value="100" step="5" oninput="setTax('factory','large')">
+            <button type="button" class="tax-step" onclick="adjustTax('factory','large',5)" aria-label="เพิ่มภาษีโรงงานใหญ่ 5%">＋</button>
+          </div>
         </div>
       </div>
     </div>
@@ -286,32 +337,30 @@
     <p id="deptNoResult" class="dept-no-result" style="display:none;">ไม่พบกระทรวงที่ค้นหา 🔍</p>
   </div>
 
-  <div class="section">
-    <h3>📄 ข้อมูล &amp; รายงาน</h3>
-    <button onclick="showCitizensData()">📄 ดูข้อมูลประชาชน</button>
-    <button onclick="showDeadCitizens()">☠️ ดูข้อมูลผู้เสียชีวิต</button>
-  </div>
-
   <footer class="app-footer">🏛️ City Government Sim — บริหารด้วยปัญญา ใส่ใจด้วยหัวใจ</footer>
 
   </div><!-- /.app-shell -->
 
   <!-- 🔹 ปุ่มลอยมุมขวาล่าง แสดงตลอดเวลา ไม่ต้องเลื่อนกลับขึ้นไปหา -->
   <div id="quickDock" class="quick-dock">
+    <span id="dockHint" class="dock-hint">👆 เมนูลัด</span>
     <div class="dock-menu" id="dockMenu">
       <button onclick="nextMonth()" title="เดือนถัดไป"><span>▶</span><small>เดือนถัดไป</small></button>
       <button onclick="buyFood()" title="ซื้ออาหาร"><span>🍛</span><small>ซื้ออาหาร</small></button>
-      <button onclick="fundAll()" title="จ่ายงบทั้งหมด"><span>💰</span><small>จ่ายงบทั้งหมด</small></button>
+      <button id="fundAllDockBtn" onclick="fundAll()" title="จ่ายงบทั้งหมด"><span>💰</span><small>จ่ายงบทั้งหมด</small></button>
       <button onclick="document.getElementById('festivalBtn').click()" title="จัดเทศกาล"><span>🎉</span><small>เทศกาล</small></button>
       <button onclick="openSaveManager()" title="เซฟเกม"><span>📂</span><small>เซฟเกม</small></button>
       <button onclick="openResearchCenter()" title="ศูนย์วิจัย"><span>🏛️</span><small>วิจัย</small></button>
       <button onclick="openHistoryChart()" title="กราฟย้อนหลัง"><span>📈</span><small>กราฟ</small></button>
+      <button onclick="showCitizensData()" title="ข้อมูลประชาชน"><span>📄</span><small>ข้อมูลประชาชน</small></button>
+      <button onclick="showDeadCitizens()" title="ข้อมูลผู้เสียชีวิต"><span>☠️</span><small>ผู้เสียชีวิต</small></button>
       <button onclick="showGameGuide()" title="วิธีเล่น"><span>📖</span><small>วิธีเล่น</small></button>
     </div>
     <button id="dockToggle" class="dock-toggle" onclick="toggleDock()" title="เมนูลัด">⚡</button>
   </div>
 
 <script src="js/toast.js"></script>
+<script src="js/statusBarLayout.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/showGameGuide.js"></script>
 <script src="js/Global.js"></script>
