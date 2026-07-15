@@ -507,7 +507,7 @@ button[title]:hover::after{
   position: fixed;
   top: max(10px, env(safe-area-inset-top));
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   z-index: 1400;
   display:flex;
   flex-wrap:wrap;
@@ -516,8 +516,13 @@ button[title]:hover::after{
   width:clamp(260px, 92vw, 1000px);
   margin:0;
   padding:10px 14px;
-  background: rgba(15,21,36,.9);
-  backdrop-filter: blur(10px) saturate(1.2);
+  /* เดิมใช้ backdrop-filter: blur(...) แต่ตัวแถบนี้เป็น position:fixed ลอยอยู่ตลอด
+     บน iOS/Safari การ blur พื้นหลังของ element ที่ fixed ค้างจอ ต้องคำนวณใหม่ทุกเฟรมตอนเลื่อนจอ
+     ทำให้กระตุก/กระพริบ/หายวูบระหว่างเลื่อน จึงเปลี่ยนเป็นพื้นหลังทึบเกือบสนิทแทน (เนียนตาใกล้เคียงเดิม
+     แต่ไม่ต้องคำนวณ blur ซ้ำทุกเฟรม) และเพิ่ม translateZ(0)+will-change ให้เบราว์เซอร์แยกเลเยอร์ไว้ล่วงหน้า
+     ลดโอกาสที่ตัวแถบจะถูกวาดใหม่พร้อมพื้นหลังตอนเลื่อน */
+  background: rgba(15,21,36,.97);
+  will-change: transform;
   border:1px solid var(--border-strong);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow);
@@ -749,6 +754,9 @@ button[title]:hover::after{
   flex-direction:column;
   align-items:flex-end;
   gap:10px;
+  /* กันจอกระตุกตอนเลื่อน: บอกเบราว์เซอร์ล่วงหน้าให้แยกเลเยอร์ compositor ของปุ่มลอยนี้ไว้ต่างหาก */
+  will-change: transform;
+  transform: translateZ(0);
 }
 .dock-toggle{
   width:58px;
