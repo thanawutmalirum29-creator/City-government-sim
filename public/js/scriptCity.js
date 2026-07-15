@@ -361,9 +361,9 @@ function buyFood() {
 
     <div class="confirm-cost-grid">
       <div class="confirm-cost-row"><span>💵 ราคาต่อหน่วย</span><span id="foodUnitPriceText">-</span></div>
-      <div class="confirm-cost-row"><span>🧾 ราคารวม</span><span id="foodTotalPriceText">-</span></div>
-      <div class="confirm-cost-row"><span>💰 เงินคงคลังหลังซื้อ</span><span id="foodTreasuryAfterText">-</span></div>
-      <div class="confirm-cost-row"><span>🍽️ อาหารคงคลังหลังซื้อ</span><span id="foodStockAfterText">-</span></div>
+      <div class="confirm-cost-row"><span>🧾 ราคารวม</span><span id="foodTotalPriceText"><b id="foodTotalPriceNum">-</b> บาท</span></div>
+      <div class="confirm-cost-row"><span>💰 เงินคงคลังหลังซื้อ</span><span id="foodTreasuryAfterText"><span id="foodTreasuryBeforeNum">-</span> → <b id="foodTreasuryAfterNum">-</b> บาท</span></div>
+      <div class="confirm-cost-row"><span>🍽️ อาหารคงคลังหลังซื้อ</span><span id="foodStockAfterText"><span id="foodStockBeforeNum">-</span> → <b id="foodStockAfterNum">-</b> มื้อ</span></div>
     </div>
     <p class="confirm-warn" id="foodWarnText" style="display:none;"></p>
 
@@ -373,6 +373,7 @@ function buyFood() {
   `;
 
   showModal(html);
+  _lastFoodPreviewSnapshot = {}; // modal เพิ่งสร้างใหม่ (ตัวเลขเป็น "-" ทั้งหมด) ต้องบังคับเขียนรอบแรกเสมอ
   updateFoodPurchaseDisplay();
 }
 
@@ -395,6 +396,16 @@ function setFoodPurchasePreset(amount) {
 }
 
 // อัปเดตราคาต่อหน่วย/ราคารวม/ยอดคงเหลือแบบเรียลไทม์ตามจำนวนที่พิมพ์หรือกดปรับ
+// เดิม: เขียน innerHTML ทับทั้งแถว (รวม <b>...</b>) ทุกครั้งที่พิมพ์ 1 ตัวอักษร (event "input" ยิงถี่มาก)
+// แก้: แถวคงที่ (label/ลูกศร/หน่วย) สร้างไว้ครั้งเดียวตอนเปิด modal (ดู buyFood() ด้านบน)
+// ฟังก์ชันนี้เขียนแค่ textContent ของตัวเลขแต่ละจุด และข้ามการเขียนถ้าค่าไม่เปลี่ยนจากครั้งก่อน
+let _lastFoodPreviewSnapshot = {};
+function _setFoodPreviewText(id, value) {
+  if (_lastFoodPreviewSnapshot[id] === value) return;
+  _lastFoodPreviewSnapshot[id] = value;
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
 function updateFoodPurchaseDisplay() {
   const input = document.getElementById("foodPurchaseInput");
   if (!input) return;
@@ -407,17 +418,14 @@ function updateFoodPurchaseDisplay() {
   const treasuryAfter = Math.ceil(treasury - total);
   const foodAfter = Math.ceil(foodStock + amount);
 
-  const unitEl = document.getElementById("foodUnitPriceText");
-  const totalEl = document.getElementById("foodTotalPriceText");
-  const treasuryEl = document.getElementById("foodTreasuryAfterText");
-  const stockEl = document.getElementById("foodStockAfterText");
+  _setFoodPreviewText("foodUnitPriceText", `${unitCost.toLocaleString()} บาท/มื้อ`);
+  _setFoodPreviewText("foodTotalPriceNum", total.toLocaleString());
+  _setFoodPreviewText("foodTreasuryBeforeNum", treasury.toLocaleString());
+  _setFoodPreviewText("foodTreasuryAfterNum", treasuryAfter.toLocaleString());
+  _setFoodPreviewText("foodStockBeforeNum", foodStock.toLocaleString());
+  _setFoodPreviewText("foodStockAfterNum", foodAfter.toLocaleString());
+
   const warnEl = document.getElementById("foodWarnText");
-
-  if (unitEl) unitEl.textContent = `${unitCost.toLocaleString()} บาท/มื้อ`;
-  if (totalEl) totalEl.innerHTML = `<b>${total.toLocaleString()}</b> บาท`;
-  if (treasuryEl) treasuryEl.innerHTML = `${treasury.toLocaleString()} → <b>${treasuryAfter.toLocaleString()}</b> บาท`;
-  if (stockEl) stockEl.innerHTML = `${foodStock.toLocaleString()} → <b>${foodAfter.toLocaleString()}</b> มื้อ`;
-
   if (warnEl) {
     if (treasuryAfter < 0) {
       warnEl.style.display = "";

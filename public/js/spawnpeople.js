@@ -267,14 +267,43 @@ nextMonth = function() {
 };
 
 const _oldUpdateInfo = updateInfo;
+let _lastJobStatsSnapshot = null;
 updateInfo = function() {
   _oldUpdateInfo();
 
-  // นับจำนวนอาชีพ
-  let jobStats = jobs.map(job => {
-    let count = citizens.filter(c => c.job === job).length;
-    return `${job}: ${count} คน`;
-  }).join("<br>");
+  // 🐛 เดิมโค้ดตรงนี้ใช้ `#info.innerHTML +=` ต่อท้ายไปเรื่อยๆ ทุกครั้งที่ updateInfo() ถูกเรียก
+  // (ทุก 1 วิ จาก setInterval) "โดยไม่เคยล้างของเก่าออกเลย" แม้ตอนแผงข้อมูลปิดอยู่ก็ยังต่อท้ายอยู่ดี
+  // เพราะ _oldUpdateInfo() (ที่ผ่าน uiPerf.js) จะข้ามการรีเฟรช #info ทั้งก้อนไปเลยตอนแผงปิด
+  // ผลคือ #info บวมขึ้นเรื่อยๆ ไม่มีที่สิ้นสุดตลอดเวลาที่เปิดเกมค้างไว้ ยิ่งเล่นนานยิ่งหนักเครื่อง/หน่วงขึ้นเรื่อยๆ
+  // แก้โดยรอเฟรมถัดไป (ให้ทันจังหวะที่ uiPerf.js อาจรีเฟรช #info ทั้งก้อนก่อน) แล้วเขียนลงกล่องของ
+  // ตัวเองที่แยกออกมาต่างหากด้วยการ "แทนที่" ทุกครั้ง ไม่ใช่ต่อท้ายสะสม และข้ามไปเลยถ้าแผงปิดอยู่
+  // เพิ่มเติม: เทียบตัวเลขอาชีพก่อนเขียนด้วย (dirty-check) ถ้าจำนวนแต่ละอาชีพไม่เปลี่ยนเลยจากรอบก่อน
+  // (เช่น setInterval ติ๊กแต่ยังไม่ถึงเดือนใหม่) จะไม่แตะ DOM ส่วนนี้เลย
+  requestAnimationFrame(() => {
+    const details = document.getElementById("overviewDetails");
+    if (details && !details.open) return; // แผงปิดอยู่ ไม่ต้องทำอะไร ประหยัดซีพียู
 
-  document.getElementById("info").innerHTML += `<br><br>👷‍♂️ อาชีพประชาชน:<br>${jobStats}`;
+    const infoEl = document.getElementById("info");
+    if (!infoEl) return;
+
+    let jobStats = jobs.map(job => {
+      let count = citizens.filter(c => c.job === job).length;
+      return `${job}: ${count} คน`;
+    }).join("<br>");
+
+    let jobBlock = document.getElementById("jobStatsBlock");
+    const blockMissing = !jobBlock || jobBlock.parentNode !== infoEl;
+
+    // ถ้าเลขอาชีพเหมือนเดิมทุกตัว และกล่องยังอยู่ครบ ไม่ต้องเขียน DOM ซ้ำ
+    if (!blockMissing && jobStats === _lastJobStatsSnapshot) return;
+    _lastJobStatsSnapshot = jobStats;
+
+    if (blockMissing) {
+      // เผื่อ _oldUpdateInfo() เพิ่งเขียน #info.innerHTML ทับใหม่ทั้งก้อน (ล้าง element เก่าทิ้งไปแล้ว)
+      jobBlock = document.createElement("div");
+      jobBlock.id = "jobStatsBlock";
+      infoEl.appendChild(jobBlock);
+    }
+    jobBlock.innerHTML = `<br><br>👷‍♂️ อาชีพประชาชน:<br>${jobStats}`;
+  });
 };

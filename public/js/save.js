@@ -108,7 +108,24 @@ function saveGame(slotName) {
   const state = getGameState();
   state.timestamp = new Date().toLocaleString("th-TH");
   localStorage.setItem(`citySave_${slotName}`, JSON.stringify(state));
+  // เซฟช่องนี้กลายเป็น "เซฟที่กำลังเล่นอยู่" ตั้งแต่ตอนนี้ ทำให้กดเดือนถัดไปครั้งต่อๆ ไป
+  // จะออโต้เซฟทับช่องนี้ให้เองอัตโนมัติ
+  currentSaveSlot = slotName;
   refreshSaveList();
+}
+
+// ออโต้เซฟทับเซฟช่องที่กำลังเล่นอยู่ (currentSaveSlot) แบบเงียบๆ ไม่รบกวนผู้เล่นด้วยการรีเฟรช
+// รายการเซฟ/ป๊อปอัปใดๆ เรียกจากท้าย nextMonth() ทุกครั้งที่ขึ้นเดือนใหม่
+// ถ้ายังไม่เคยเซฟ/โหลดเกมนี้เลย (currentSaveSlot เป็น null) จะไม่ทำอะไร
+function autoSaveCurrentSlot() {
+  if (!currentSaveSlot) return;
+  try {
+    const state = getGameState();
+    state.timestamp = new Date().toLocaleString("th-TH");
+    localStorage.setItem(`citySave_${currentSaveSlot}`, JSON.stringify(state));
+  } catch (e) {
+    // เงียบไว้ (เช่น localStorage เต็ม) ไม่ให้กระทบการเล่นเกมหลัก
+  }
 }
 
 // โหลดเกม
@@ -119,6 +136,10 @@ function loadGame(slotName) {
   // 1. คืนค่าทุกตัวแปร
   const state = JSON.parse(data);
   setGameState(state);
+
+  // เซฟช่องที่เพิ่งโหลดมา กลายเป็น "เซฟที่กำลังเล่นอยู่" ตั้งแต่ตอนนี้ กดเดือนถัดไป
+  // ครั้งต่อๆ ไปจะออโต้เซฟทับช่องนี้ให้เองอัตโนมัติ
+  currentSaveSlot = slotName;
 
   // 2. รีเฟรช UI
   updateInfo();
@@ -137,6 +158,9 @@ function loadGame(slotName) {
 function deleteSave(slotName) {
   if (confirm(`ลบเซฟ "${slotName}" ?`)) {
     localStorage.removeItem(`citySave_${slotName}`);
+    // ถ้าลบเซฟช่องที่กำลังเล่นอยู่ ให้เลิกออโต้เซฟทับช่องนี้ (ไม่งั้นเดือนถัดไปจะสร้างเซฟ
+    // ช่องเดิมขึ้นมาใหม่โดยที่ผู้เล่นเพิ่งตั้งใจลบทิ้งไป)
+    if (currentSaveSlot === slotName) currentSaveSlot = null;
     refreshSaveList();
   }
 }

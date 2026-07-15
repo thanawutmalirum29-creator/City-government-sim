@@ -84,9 +84,40 @@ function payLoanFromIncome(monthlyIncome) {
   return monthlyIncome - payment;
 }
 
+// สร้างโครง DOM ของแถบสถานะหนี้สินครั้งเดียว (สลับได้ 2 สถานะ: มีหนี้ / ไม่มีหนี้ ด้วย display toggle
+// แทนการเขียน innerHTML ทับทั้งประโยคทุกครั้งที่ยอดหนี้เปลี่ยนแค่ตัวเลขเดียว)
+function _ensureLoanSkeleton() {
+  const el = document.getElementById("loanStatus");
+  if (!el || el.dataset.skeletonBuilt === "1") return;
+  el.innerHTML = `<span id="loanStatus_debt" style="display:none">💳 หนี้สินคงเหลือ: <span id="loanStatus_remaining"></span> บาท (จ่ายเดือนละ <span id="loanStatus_payment"></span> บาท)</span><span id="loanStatus_none" style="display:none">✅ ไม่มีหนี้สิน</span>`;
+  el.dataset.skeletonBuilt = "1";
+}
+
+let _lastLoanHasDebt = null;
+let _lastLoanRemaining = null;
+let _lastLoanPayment = null;
 function updateLoanStatus() {
-  const loanText = loan.remainingDebt > 0
-    ? `💳 หนี้สินคงเหลือ: ${loan.remainingDebt.toLocaleString()} บาท (จ่ายเดือนละ ${loan.monthlyPayment.toLocaleString()} บาท)`
-    : "✅ ไม่มีหนี้สิน";
-  document.getElementById("loanStatus").innerHTML = loanText;
+  _ensureLoanSkeleton();
+  const hasDebt = loan.remainingDebt > 0;
+
+  if (hasDebt !== _lastLoanHasDebt) {
+    _lastLoanHasDebt = hasDebt;
+    const debtEl = document.getElementById("loanStatus_debt");
+    const noneEl = document.getElementById("loanStatus_none");
+    if (debtEl) debtEl.style.display = hasDebt ? "" : "none";
+    if (noneEl) noneEl.style.display = hasDebt ? "none" : "";
+  }
+
+  if (hasDebt) {
+    if (loan.remainingDebt !== _lastLoanRemaining) {
+      _lastLoanRemaining = loan.remainingDebt;
+      const remEl = document.getElementById("loanStatus_remaining");
+      if (remEl) remEl.textContent = loan.remainingDebt.toLocaleString();
+    }
+    if (loan.monthlyPayment !== _lastLoanPayment) {
+      _lastLoanPayment = loan.monthlyPayment;
+      const payEl = document.getElementById("loanStatus_payment");
+      if (payEl) payEl.textContent = loan.monthlyPayment.toLocaleString();
+    }
+  }
 }
