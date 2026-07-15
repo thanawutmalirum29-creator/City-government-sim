@@ -53,11 +53,15 @@
 html,body{
   min-height:100%;
   margin:0;
-  background:
+  /* พื้นหลังสีพื้นสำรอง กันเห็นเป็นพื้นที่ขาวโล่งตอนเลื่อนเกินขอบเนื้อหา (iOS rubber-band overscroll) */
+  background-color: var(--bg-0);
+  background-image:
     radial-gradient(1100px 620px at 12% -10%, rgba(15,168,154,.08), transparent 55%),
     radial-gradient(900px 560px at 100% 0%, rgba(200,134,10,.09), transparent 50%),
     linear-gradient(180deg, var(--bg-1), var(--bg-0) 55%, var(--bg-1));
-  background-attachment: fixed;
+  /* เดิมใช้ background-attachment:fixed แต่ iOS/Safari มีบั๊กที่รู้จักกันดี: พื้นหลัง fixed
+     จะไม่ครอบคลุมพื้นที่ตอนเลื่อนเกินขอบเนื้อหา (rubber-band overscroll) ทำให้เห็นเป็นช่องว่างสีขาวโล่ง
+     ด้านล่าง/บนสุดตอนเลื่อนสุดจอ จึงเปลี่ยนมาใช้ scroll ปกติ (ค่าเริ่มต้น) แทน */
   color:var(--text);
   font-family: var(--font-body);
   text-rendering:optimizeLegibility;
@@ -796,12 +800,21 @@ button[title]:hover::after{
   box-shadow: 0 6px 16px rgba(30,25,10,.18);
 }
 .dock-menu button span{ font-size:16px; }
-/* คำใบ้ "เมนูลัด" — โชว์แค่ตอนยังไม่เคยกดเปิดปุ่มลัด แสดงด้านซ้ายของปุ่ม
-   ไม่วางซ้อนกับรายการเมนูที่กางขึ้นด้านบนปุ่ม กันปัญหาบังเมนู */
+/* คำใบ้ "เมนูลัด" — โชว์แค่ตอนยังไม่เคยกดเปิดปุ่มลัด
+   เดิมตำแหน่งอ้างอิงจากขอบล่างของ .quick-dock ทั้งกล่อง ซึ่งความสูงจะเปลี่ยนไปเวลาเมนูกางออก
+   (มีปุ่มเรียงซ้อนกันหลายปุ่ม) ทำให้คำใบ้เด้งไปคนละตำแหน่งและไปทับปุ่มเมนูพอดี
+   แก้โดยย้าย .dock-hint เข้ามาอยู่ใน .dock-toggle-wrap เดียวกับปุ่ม ⚡ โดยเฉพาะ
+   ตำแหน่งจึงอ้างอิงกับปุ่มลัดตรงๆ เสมอ ไม่ขยับหนีไปไหนไม่ว่าเมนูจะเปิดหรือปิด */
+.dock-toggle-wrap{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
 .dock-hint{
   position:absolute;
-  right:70px;
-  bottom:17px;
+  right: calc(100% + 12px);
+  top:50%;
+  transform: translateY(-50%);
   background: linear-gradient(180deg, var(--card), var(--card-2));
   color: var(--text);
   border:1px solid var(--border-strong);
@@ -814,6 +827,8 @@ button[title]:hover::after{
   pointer-events:none;
   animation: dockHintBob 1.6s ease-in-out infinite;
 }
+/* กันไว้อีกชั้น: ถ้าเมนูลัดกางออกอยู่ ไม่ต้องโชว์คำใบ้นี้เด็ดขาด ไม่ว่ากรณีใด */
+.quick-dock.open .dock-hint{ display:none; }
 .dock-hint::after{
   content:"";
   position:absolute;

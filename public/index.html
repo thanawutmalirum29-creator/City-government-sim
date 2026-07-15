@@ -343,7 +343,6 @@
 
   <!-- 🔹 ปุ่มลอยมุมขวาล่าง แสดงตลอดเวลา ไม่ต้องเลื่อนกลับขึ้นไปหา -->
   <div id="quickDock" class="quick-dock">
-    <span id="dockHint" class="dock-hint">👆 เมนูลัด</span>
     <div class="dock-menu" id="dockMenu">
       <button onclick="nextMonth()" title="เดือนถัดไป"><span>▶</span><small>เดือนถัดไป</small></button>
       <button onclick="buyFood()" title="ซื้ออาหาร"><span>🍛</span><small>ซื้ออาหาร</small></button>
@@ -356,7 +355,10 @@
       <button onclick="showDeadCitizens()" title="ข้อมูลผู้เสียชีวิต"><span>☠️</span><small>ผู้เสียชีวิต</small></button>
       <button onclick="showGameGuide()" title="วิธีเล่น"><span>📖</span><small>วิธีเล่น</small></button>
     </div>
-    <button id="dockToggle" class="dock-toggle" onclick="toggleDock()" title="เมนูลัด">⚡</button>
+    <div class="dock-toggle-wrap">
+      <span id="dockHint" class="dock-hint">👆 เมนูลัด</span>
+      <button id="dockToggle" class="dock-toggle" onclick="toggleDock()" title="เมนูลัด">⚡</button>
+    </div>
   </div>
 
 <script src="js/toast.js"></script>
